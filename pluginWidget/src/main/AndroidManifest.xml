@@ -1,0 +1,42 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ks.plugin.widget.note">
+
+    <application>
+        <receiver
+            android:name=".NoteAppWidgetProvider"
+            android:label="笔记">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ks.plugin.widget.note.action.CLICK" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_provider_info" />
+        </receiver>
+        <receiver
+            android:name=".MyWidgetProvider"
+            android:label="My">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ks.plugin.widget.note.action.CLICK" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_provider_info" />
+        </receiver>
+        <receiver
+            android:name=".WidgetProvider"
+            android:label="widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ks.plugin.widget.note.action.CLICK" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_provider_info" />
+        </receiver>
+
+        <service android:name=".UpdateWidgetService" />
+        <service android:name=".MyService" android:process=":MyService" />
+    </application>
+</manifest>
