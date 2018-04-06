@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.butterknife'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: "com.jfrog.bintray"
+//apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: "com.jfrog.bintray"
 
 android {
     compileSdkVersion 27
@@ -9,7 +9,7 @@ android {
         applicationId "com.ks.plugin.widget.launcher"
 //        applicationId "com.xunmeng.pinduoduo"
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         javaCompileOptions {
@@ -50,7 +50,7 @@ dependencies {
     api 'com.android.support:appcompat-v7:27.1.0'
     api 'com.android.support:recyclerview-v7:27.1.0'
     api 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation project(':pluginWidget')
+    //implementation project(':pluginWidget')
     //implementation files('libs/org.apache.commons.httpclient.jar')
     // https://mvnrepository.com/artifact/org.htmlparser/htmlparser
     implementation group: 'org.htmlparser', name: 'htmlparser', version: '1.6'

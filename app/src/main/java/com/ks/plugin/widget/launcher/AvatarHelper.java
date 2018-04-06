@@ -28,7 +28,7 @@ public class AvatarHelper {
 
     public static void setAvatar(ImageView imageView, String url) {
         Glide.with(imageView)
-                .load((url == null || url.isEmpty()) ? R.drawable.ic_launcher : url)
+                .load((url == null || url.isEmpty()) ? R.mipmap.ic_launcher : url)
                 .apply(RequestOptions.centerInsideTransform())
                 .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .into(imageView);
@@ -36,7 +36,7 @@ public class AvatarHelper {
 
     public static void setAvatar(ImageView imageView, Bitmap bitmap) {
         Glide.with(imageView)
-                .load(bitmap == null ? R.drawable.ic_launcher : bitmap)
+                .load(bitmap == null ? R.mipmap.ic_launcher : bitmap)
                 .apply(RequestOptions.centerInsideTransform())
                 .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .into(imageView);
@@ -45,7 +45,7 @@ public class AvatarHelper {
 
     public static void setImg(ImageView imageView, String url) {
         Glide.with(imageView)
-                .load((url == null || url.isEmpty()) ? R.drawable.ic_launcher : url)
+                .load((url == null || url.isEmpty()) ? R.mipmap.ic_launcher : url)
                 .apply(RequestOptions.centerInsideTransform())
                 .into(imageView);
     }

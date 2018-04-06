@@ -22,8 +22,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.ks.plugin.widget.launcher.accessibility.AccessibilityActivity;
 import com.ks.plugin.widget.launcher.changba.PersonHeadActivity;
-import com.ks.plugin.widget.note.NoteAppWidgetProvider;
+import com.ks.plugin.widget.launcher.print.TicketActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +34,13 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//import com.ks.plugin.widget.note.NoteAppWidgetProvider;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ClipboardManager.OnPrimaryClipChangedListener {
     Button btn;
     Button btnPhoto;
+    Button btnPrint;
+    Button btnMeituan;
     EditText tx;
     private final String TAG = getClass().getSimpleName();
 
@@ -45,10 +50,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         btn = findViewById(R.id.saveWeb);
         btnPhoto = findViewById(R.id.vtitlephoto);
+        btnPrint = findViewById(R.id.vprint);
+        btnMeituan = findViewById(R.id.vmeituan);
+        tx = findViewById(R.id.vurl);
 
         btn.setOnClickListener(this);
         btnPhoto.setOnClickListener(this);
-        tx = findViewById(R.id.vurl);
+        btnPrint.setOnClickListener(this);
+        btnMeituan.setOnClickListener(this);
         Intent intent = getIntent();
         Uri uri = intent.getData();
         if (uri != null) {
@@ -59,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         init();
     }
 
-    NoteAppWidgetProvider mBroadcastReceiver;
+//    NoteAppWidgetProvider mBroadcastReceiver;
 
     @Override
     protected void onResume() {
@@ -74,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        // 3. 动态注册：调用Context的registerReceiver（）方法
 //        registerReceiver(mBroadcastReceiver, intentFilter);
         registerClipEvents(this);
+        //MyApplication.getInstance().setFlag(false);
     }
 
     // 注册广播后，要在相应位置记得销毁广播
@@ -90,15 +100,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+        Intent intent = null;
         switch (view.getId()) {
             case R.id.saveWeb:
                 saveWebHtml(tx.getText().toString());
                 break;
             case R.id.vtitlephoto:
-                Intent intent = new Intent();
+                intent = new Intent();
                 intent.setClass(this, PersonHeadActivity.class);
 //                intent.putExtra("sid", adapter.itemList.get(position).getSid());
                 startActivity(intent);
+                break;
+
+            case R.id.vprint:
+                intent = new Intent();
+                intent.setClass(this, TicketActivity.class);
+//                intent.putExtra("sid", adapter.itemList.get(position).getSid());
+                startActivity(intent);
+                break;
+            case R.id.vmeituan:
+                intent = new Intent(this, AccessibilityActivity.class);
+                startActivity(intent);
+//                1）直接拨打
+//                Intent intentPhone = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNumber));
+//                startActivity(intentPhone);
+//                2）跳转到拨号界面
+//                Intent intent = new Intent(Intent.ACTION_DIAL,Uri.parse("tel:" + phoneNumber));
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                startActivity(intent);
+
+//                2、跳转到联系人页面，使用一下代码：
+//                Intent intentPhone = new Intent(Intent.ACTION_CALL, Uri.parse("tel:15069060571"));
+//                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+//                    return;
+//                }
+//                startActivity(intentPhone);
+                Intent intent001 = new Intent();
+                intent001.setClassName("com.android.contacts", "com.android.contacts.activities.PeopleActivity");
+                startActivity(intent001);
                 break;
         }
     }
@@ -139,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             map.put("text", html);
             HtmlToText htmlToText = new HtmlToText();
             htmlToText.Convert(html);
-            htmlToText.convert2(html);
-            htmlToText.delHTMLTag(html);
+            //htmlToText.convert2(html);
+            //htmlToText.delHTMLTag(html);
             handler.sendMessage(message);
         }
     }
