@@ -23,4 +23,53 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="微信自动回复" />
+
+    <EditText
+        android:id="@+id/vphone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="输入手机号"
+        android:text="15069060571" />
+
+    <Button
+        android:id="@+id/vwxtalk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="打开微信聊天" />
+
+    <Button
+        android:id="@+id/vwxpengyouquan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="打开朋友圈" />
+
+    <Button
+        android:id="@+id/vreadcontact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="读取联系人" />
+
+    <Button
+        android:id="@+id/vwritecontact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="写入联系人" />
+
+    <Button
+        android:id="@+id/vopencontact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="打开通讯录" />
+
+    <Button
+        android:id="@+id/vinitcontact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="初始化通讯录" />
+
+    <Button
+        android:id="@+id/vclearcontact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="清空通讯录" />
 </LinearLayout>

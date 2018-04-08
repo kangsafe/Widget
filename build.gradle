@@ -23,6 +23,10 @@ allprojects {
         maven {
             url "https://maven.java.net/content/groups/public/"
         }
+        maven {
+            url 'http://www.idescout.com/maven/repo/'
+            name 'IDEScout, Inc.'
+        }
     }
 }
 

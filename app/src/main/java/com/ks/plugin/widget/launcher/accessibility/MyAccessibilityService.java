@@ -3,12 +3,12 @@ package com.ks.plugin.widget.launcher.accessibility;
 import android.accessibilityservice.AccessibilityService;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import com.ks.plugin.widget.launcher.MyApplication;
+import com.orhanobut.logger.Logger;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
@@ -21,7 +21,7 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i("测试", "服务创建");
+        Logger.i("服务创建");
     }
 
     // 当前事件发生的包名
@@ -31,12 +31,12 @@ public class MyAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         // 获取当前事件的包名
         nowPackageName = event.getPackageName().toString();
-        Log.i("测试", "是否运行" + nowPackageName + "-" + event.getEventType());
+        Logger.i("活动应用包名" + nowPackageName + "-" + event.getEventType());
         // 判断是否为美团应用、并判断当前状态是否为运行状态
         if (nowPackageName.equals("com.sankuai.meituan")) {
             // 判断是否为我们所需的窗口状态变化
             if (event.getEventType() == TYPE_WINDOW_CONTENT_CHANGED || event.getEventType() == TYPE_WINDOW_STATE_CHANGED) {
-                Log.i("测试", "窗口变化");
+                Logger.i("窗口变化");
                 // 获取事件活动的窗口布局根节点
                 AccessibilityNodeInfo rootNode = null;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -50,10 +50,10 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     private boolean handle(AccessibilityNodeInfo info) {
-        Log.i("测试", "节点");
+        Logger.i("节点");
         // 判断节点是否有子控件
         if (info.getChildCount() == 0) {
-            Log.i("测试", "无子节点");
+            Logger.i("无子节点");
             // 判断节点是否有文字并且有“搜索”文字
             if (info.getText() != null && info.getText().toString().contains("搜索")) {
 
@@ -104,7 +104,7 @@ public class MyAccessibilityService extends AccessibilityService {
             }
 
         } else {
-            Log.i("测试", "有子节点");
+            Logger.i("有子节点");
             // 当 当前节点 有子控件时，解析它的孩子，以此递归
             for (int i = 0; i < info.getChildCount(); i++) {
                 if (info.getChild(i) != null) {

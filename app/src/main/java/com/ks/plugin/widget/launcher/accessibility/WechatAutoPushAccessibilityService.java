@@ -13,7 +13,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
@@ -22,12 +22,14 @@ import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.ks.plugin.widget.launcher.jpush.MyReceiver;
 import com.orhanobut.logger.Logger;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
-public class WechatAutoReplyAccessibilityService extends AccessibilityService {
+public class WechatAutoPushAccessibilityService extends AccessibilityService {
     private final static String MM_PNAME = "com.tencent.mm";
     boolean hasAction = false;
     boolean locked = false;
@@ -47,130 +49,48 @@ public class WechatAutoReplyAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(final AccessibilityEvent event) {
         int eventType = event.getEventType();
-        Logger.d("maptrix", "get event = " + eventType);
-        switch (eventType) {
-            case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:// 通知栏事件
-                Logger.d("maptrix", "get notification event");
-                List<CharSequence> texts = event.getText();
-                if (!texts.isEmpty()) {
-                    for (CharSequence text : texts) {
-                        String content = text.toString();
-                        if (!TextUtils.isEmpty(content)) {
-                            //是否锁屏
-                            if (isScreenLocked()) {
-                                locked = true;
-                                wakeAndUnlock();
-                                Logger.d("maptrix", "the screen is locked");
-                                if (isAppForeground(MM_PNAME)) {
-                                    background = false;
-                                    Logger.d("maptrix", "is mm in foreground");
-                                    sendNotifacationReply(event);
-                                    handler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            sendNotifacationReply(event);
-                                            if (fill()) {
-                                                send();
-                                            }
-                                        }
-                                    }, 1000);
-                                } else {
-                                    background = true;
-                                    Logger.d("maptrix", "is mm in background");
-                                    sendNotifacationReply(event);
+        String nowPackageName = event.getPackageName().toString();
+
+        Logger.d("maptrix:" + nowPackageName + " get event = " + eventType);
+        itemNodeinfo = getRootInActiveWindow();
+        if (itemNodeinfo == null) {
+            return;
+        }
+        // 判断是否为微信应用、并判断当前状态是否为运行状态
+        if (nowPackageName.equals("com.tencent.mm")) {
+            String className1 = event.getClassName().toString();
+            Logger.i("maptrix:" + className1);
+            if (className1.equals("com.tencent.mm.ui.chatting.ChattingUI")) {
+                if (fill()) {
+                    send();
+                } else {
+                    if (itemNodeinfo != null) {
+                        itemNodeinfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (fill()) {
+                                    send();
                                 }
-                            } else {
-                                locked = false;
-                                Logger.d("maptrix", "the screen is unlocked");
-                                // 监听到微信红包的notification，打开通知
-                                if (isAppForeground(MM_PNAME)) {
-                                    background = false;
-                                    Logger.d("maptrix", "is mm in foreground");
-                                    sendNotifacationReply(event);
-                                    handler.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (fill()) {
-                                                send();
-                                            }
-                                        }
-                                    }, 1000);
-                                } else {
-                                    background = true;
-                                    Logger.d("maptrix", "is mm in background");
-                                    sendNotifacationReply(event);
-                                }
+                                //back2Home();
+                                release();
+                                hasAction = false;
                             }
-                        }
+                        }, 1000);
+                        return;
                     }
                 }
-                break;
-            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                Logger.d("maptrix", "get type window down event");
-                if (!hasAction) break;
-                itemNodeinfo = null;
-                String className = event.getClassName().toString();
-                if (className.equals("com.tencent.mm.ui.LauncherUI")) {
-                    if (fill()) {
-                        send();
-                    } else {
-                        if (itemNodeinfo != null) {
-                            itemNodeinfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (fill()) {
-                                        send();
-                                    }
-                                    back2Home();
-                                    release();
-                                    hasAction = false;
-                                }
-                            }, 1000);
-                            break;
-                        }
-                    }
-                }
+            }
 
-                //bring2Front();
-                back2Home();
-                release();
-                hasAction = false;
-                break;
-            case AccessibilityEvent.TYPE_WINDOWS_CHANGED:
-                Logger.d("maptrix", "get type window down event");
-                if (!hasAction) break;
-                itemNodeinfo = null;
-                String className1 = event.getClassName().toString();
-                if (className1.equals("com.tencent.mm.ui.LauncherUI")) {
-                    if (fill()) {
-                        send();
-                    } else {
-                        if (itemNodeinfo != null) {
-                            itemNodeinfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (fill()) {
-                                        send();
-                                    }
-                                    back2Home();
-                                    release();
-                                    hasAction = false;
-                                }
-                            }, 1000);
-                            break;
-                        }
-                    }
-                }
-
-                //bring2Front();
-                back2Home();
-                release();
-                hasAction = false;
-                break;
+            bring2Front();
+            //back2Home();
+            release();
+            if (!MyReceiver.mapQueues.isEmpty()) {
+                MyReceiver.mapQueues.remove();
+            }
         }
     }
+
 
     /**
      * 寻找窗体中的“发送”按钮，并且点击。
@@ -203,11 +123,15 @@ public class WechatAutoReplyAccessibilityService extends AccessibilityService {
      * 模拟back按键
      */
     private void pressBackButton() {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            runtime.exec("input keyevent " + KeyEvent.KEYCODE_BACK);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+        } else {
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                runtime.exec("input keyevent " + KeyEvent.KEYCODE_BACK);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -225,8 +149,8 @@ public class WechatAutoReplyAccessibilityService extends AccessibilityService {
             name = cc[0].trim();
             scontent = cc[1].trim();
 
-            Logger.i("maptrix", "sender name =" + name);
-            Logger.i("maptrix", "sender content =" + scontent);
+            Logger.i("maptrix:sender name =" + name);
+            Logger.i("maptrix:sender content =" + scontent);
 
 
             PendingIntent pendingIntent = notification.contentIntent;
@@ -238,39 +162,50 @@ public class WechatAutoReplyAccessibilityService extends AccessibilityService {
         }
     }
 
+    Map<String, String> map = null;
+
     private boolean fill() {
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         if (rootNode != null) {
-            return findEditText(rootNode, "正在忙,稍后回复你");
+            try {
+                map = MyReceiver.mapQueues.peek();
+                Logger.d(map);
+                if (map == null) return false;
+                return findEditText(rootNode, map.get("msg"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
 
 
     private boolean findEditText(AccessibilityNodeInfo rootNode, String content) {
+        Logger.d(content);
         int count = rootNode.getChildCount();
 
-        Logger.d("maptrix", "root class=" + rootNode.getClassName() + "," + rootNode.getText() + "," + count);
+        Logger.d("maptrix:root class=" + rootNode.getClassName() + "," + rootNode.getText() + "," + count);
         for (int i = 0; i < count; i++) {
             AccessibilityNodeInfo nodeInfo = rootNode.getChild(i);
             if (nodeInfo == null) {
-                Logger.d("maptrix", "nodeinfo = null");
+                Logger.d("maptrix:nodeinfo = null");
                 continue;
             }
 
-            Logger.d("maptrix", "class=" + nodeInfo.getClassName());
-            Logger.e("maptrix", "ds=" + nodeInfo.getContentDescription());
+            Logger.d("maptrix:class=" + nodeInfo.getClassName());
+            //Logger.e("maptrix:ds=" + nodeInfo.getContentDescription());
             if (nodeInfo.getContentDescription() != null) {
-                int nindex = nodeInfo.getContentDescription().toString().indexOf(name);
-                int cindex = nodeInfo.getContentDescription().toString().indexOf(scontent);
-                Logger.e("maptrix", "nindex=" + nindex + " cindex=" + cindex);
-                if (nindex != -1) {
-                    itemNodeinfo = nodeInfo;
-                    Logger.i("maptrix", "find node info");
-                }
+//                int nindex = nodeInfo.getContentDescription().toString().indexOf(name);
+//                int cindex = nodeInfo.getContentDescription().toString().indexOf(scontent);
+//                Logger.e("maptrix:nindex=" + nindex + " cindex=" + cindex);
+//                if (nindex != -1) {
+//                    itemNodeinfo = nodeInfo;
+//                    Logger.i("maptrix:find node info");
+//                }
+                Logger.e(nodeInfo.getContentDescription().toString());
             }
             if ("android.widget.EditText".equals(nodeInfo.getClassName())) {
-                Logger.i("maptrix", "==================");
+                Logger.i("maptrix:==================");
                 Bundle arguments = new Bundle();
                 arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
                         AccessibilityNodeInfo.MOVEMENT_GRANULARITY_WORD);
@@ -335,12 +270,13 @@ public class WechatAutoReplyAccessibilityService extends AccessibilityService {
      * 回到系统桌面
      */
     private void back2Home() {
-        Intent home = new Intent(Intent.ACTION_MAIN);
-
-        home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        home.addCategory(Intent.CATEGORY_HOME);
-
-        startActivity(home);
+//        Intent home = new Intent(Intent.ACTION_MAIN);
+//
+//        home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        home.addCategory(Intent.CATEGORY_HOME);
+//
+//        startActivity(home);
+        pressBackButton();
     }
 
 
@@ -354,9 +290,6 @@ public class WechatAutoReplyAccessibilityService extends AccessibilityService {
         return keyguardManager.inKeyguardRestrictedInputMode();
     }
 
-    /**
-     * 唤醒并解锁
-     */
     private void wakeAndUnlock() {
         //获取电源管理器对象
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -376,13 +309,10 @@ public class WechatAutoReplyAccessibilityService extends AccessibilityService {
 
     }
 
-    /**
-     * 释放对象，进行锁屏
-     */
     private void release() {
 
         if (locked && kl != null) {
-            Logger.d("maptrix", "release the lock");
+            Logger.d("maptrix:release the lock");
             //得到键盘锁管理器对象
             kl.reenableKeyguard();
             locked = false;

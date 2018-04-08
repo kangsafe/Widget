@@ -1,0 +1,26 @@
+[
+  {
+    "name": "荆俊芳",
+    "phone": "150 5312 6163",
+    "company": "展达电子",
+    "position": "财务"
+  },
+  {
+    "name": "毕金鹏",
+    "phone": "158 5410 5420",
+    "company": "展达电子",
+    "position": "股东"
+  },
+  {
+    "name": "康玉安",
+    "phone": "150 6906 0571",
+    "company": "蚂蚁聚宝",
+    "position": "法人"
+  },
+  {
+    "name": "窦磊",
+    "phone": "185 5310 3640",
+    "company": "个人",
+    "position": "个人"
+  }
+]

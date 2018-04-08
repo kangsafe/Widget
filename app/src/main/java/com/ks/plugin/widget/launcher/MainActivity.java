@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -23,8 +22,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.ks.plugin.widget.launcher.accessibility.AccessibilityActivity;
+import com.ks.plugin.widget.launcher.accessibility.WechatAutoPushAccessibilityService;
 import com.ks.plugin.widget.launcher.changba.PersonHeadActivity;
 import com.ks.plugin.widget.launcher.print.TicketActivity;
+import com.orhanobut.logger.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,15 +35,17 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cn.jpush.android.api.JPushInterface;
+
 //import com.ks.plugin.widget.note.NoteAppWidgetProvider;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ClipboardManager.OnPrimaryClipChangedListener {
+    public static boolean isForeground = false;
     Button btn;
     Button btnPhoto;
     Button btnPrint;
     Button btnMeituan;
     EditText tx;
-    private final String TAG = getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +64,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = getIntent();
         Uri uri = intent.getData();
         if (uri != null) {
-            Log.i(TAG, "HOST:" + uri.getHost());
-            Log.i(TAG, "PATH:" + uri.getPath());
-            Log.i(TAG, "PARAM:" + uri.getQueryParameter("guid"));
+            Logger.i("HOST:" + uri.getHost());
+            Logger.i("PATH:" + uri.getPath());
+            Logger.i("PARAM:" + uri.getQueryParameter("guid"));
         }
         init();
     }
@@ -142,9 +145,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    return;
 //                }
 //                startActivity(intentPhone);
-                Intent intent001 = new Intent();
-                intent001.setClassName("com.android.contacts", "com.android.contacts.activities.PeopleActivity");
-                startActivity(intent001);
                 break;
         }
     }
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     final class InJavaScriptLocalObj {
         @JavascriptInterface
         public void getSource(String html) {
-            Log.d("html=", html);
+            Logger.d("html=", html);
             Message message = new Message();
             message.what = 3;
             Map<String, String> map = new HashMap<>();
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (manager.hasPrimaryClip() && manager.getPrimaryClip().getItemCount() > 0) {
             CharSequence addedText = manager.getPrimaryClip().getItemAt(0).getText();
             if (addedText != null) {
-                Log.i(TAG, "copied text: " + addedText);
+                Logger.i("copied text: " + addedText);
             }
             //updateWidget(addedText.toString(), "");
             tx.setText(addedText);
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             view.saveWebArchive(f.getAbsolutePath(), false, new ValueCallback<String>() {
                 @Override
                 public void onReceiveValue(String s) {
-                    Log.i("TAG", s);
+                    Logger.i( s);
                     Message message = new Message();
                     message.what = 2;
                     Map<String, String> map = new HashMap<String, String>();
@@ -409,11 +409,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             while (m.find()) {
                 String data = m.group(1).trim();
                 if (!"".equals(data)) {
-                    System.out.println(data);
+                    Logger.i(data);
                 }
             }
             return "";
         }
-
     }
 }

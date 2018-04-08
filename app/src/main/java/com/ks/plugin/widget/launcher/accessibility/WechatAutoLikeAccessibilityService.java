@@ -3,10 +3,10 @@ package com.ks.plugin.widget.launcher.accessibility;
 import android.accessibilityservice.AccessibilityService;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
 
     @Override
     protected void onServiceConnected() {
-        LogUtils.d("onServiceConnected");
+        Logger.i("onServiceConnected");
     }
 
     String description;
@@ -28,7 +28,6 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
 
     List<AccessibilityNodeInfo> lvs;
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         try {
@@ -78,7 +77,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 lvs = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cn0");
             }
-            LogUtils.d("找到的Lv数量: " + lvs.size());
+            Logger.d("找到的Lv数量: " + lvs.size());
             //如果size不为0，证明当前在朋友圈页面下,开始执行逻辑
             if (lvs.size() != 0) {
                 //1.先记录用户名
@@ -91,8 +90,8 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                     if (userNames.get(0).getParent() != null && userNames.get(0).getParent().getChildCount() == 4) {
                         mUserName = userNames.get(0).getText().toString();
                         if (!mUserName.equals("") && !ifOnce) {
-                            LogUtils.d("初始化，只会执行一次");
-                            LogUtils.d("当前的用户名:" + mUserName);
+                            Logger.d("初始化，只会执行一次");
+                            Logger.d("当前的用户名:" + mUserName);
                             ifOnce = true;
                             //测试朋友圈点赞
                             test3(rootNodeInfo);
@@ -131,9 +130,9 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
      */
     public AccessibilityNodeInfo findNodeByText(AccessibilityNodeInfo root, String key) {
         if (root.getChildCount() == 0) {
-            Log.i("TAG", root.getText() != null ? root.getText().toString() : "无文本");
+            Logger.i(root.getText() != null ? root.getText().toString() : "无文本");
             if (root.getText() != null && root.getText().toString().contains(key)) {
-                Log.i("TAG", root.getText().toString());
+                Logger.i("TAG", root.getText().toString());
                 return root;
             }
         } else {
@@ -163,7 +162,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
         // 判断节点是否有子控件
         if (info.getChildCount() == 0) {
             try {
-                LogUtils.d(info.getClassName().toString() + (info.getText() == null ? "" : info.getText().toString()));
+                Logger.d(info.getClassName().toString() + (info.getText() == null ? "" : info.getText().toString()));
             } catch (Exception e) {
                 //e.printStackTrace();
             }
@@ -252,7 +251,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
      * @param rootNodeInfo
      */
     private synchronized void test3(AccessibilityNodeInfo rootNodeInfo) {
-        LogUtils.d("当前线程:" + Thread.currentThread());
+        Logger.d("当前线程:" + Thread.currentThread());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -270,7 +269,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                 fuBtns = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/co0");
             }
 
-            LogUtils.d("fuBtns数量：" + fuBtns.size());
+            Logger.d("fuBtns数量：" + fuBtns.size());
 
             if (fuBtns.size() != 0) {
 
@@ -284,12 +283,12 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
 
                 for (int i = 0; i < fuBtns.size(); i++) {
                     AccessibilityNodeInfo fuBtn = fuBtns.get(i);
-                    LogUtils.d("fuBtn的子节点数量:" + fuBtn.getChildCount());//3-4个
+                    Logger.d("fuBtn的子节点数量:" + fuBtn.getChildCount());//3-4个
                     List<AccessibilityNodeInfo> plBtns = null;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                         plBtns = fuBtn.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cj9");
                     }
-                    LogUtils.d("从这里发现评论按钮:" + plBtns.size());
+                    Logger.d("从这里发现评论按钮:" + plBtns.size());
 
                     if (plBtns.size() == 0) {
                         if (lvs.get(0).performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)) {
@@ -305,24 +304,24 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                         zanBtns = fuBtn.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cnn");
                     }
-                    LogUtils.d("从这里发现点赞文字显示区域:" + zanBtns.size());
+                    Logger.d("从这里发现点赞文字显示区域:" + zanBtns.size());
                     if (zanBtns.size() != 0) {
                         //2.如果不为空，则查找有没有自己点过赞，有则不点，没有则点
                         AccessibilityNodeInfo zanbtn = zanBtns.get(0);
-                        LogUtils.d("点赞的人是:" + zanbtn.getText().toString());
+                        Logger.d("点赞的人是:" + zanbtn.getText().toString());
                         if (zanbtn != null && zanbtn.getText() != null &&
                                 zanbtn.getText().toString().contains(mUserName)) {
-                            LogUtils.d("*********************这一条已经被赞过辣");
+                            Logger.d("*********************这一条已经被赞过辣");
                             //判断是否需要翻页，如果当前所有页面的父节点都没点过了，就需要翻页
                             boolean ifxuyaofanye = false;
-                            LogUtils.d("Ｏ(≧口≦)Ｏ: i=" + i + "  fuBtns.size():" + fuBtns.size());
+                            Logger.d("Ｏ(≧口≦)Ｏ: i=" + i + "  fuBtns.size():" + fuBtns.size());
                             if (i == fuBtns.size() - 1) {
                                 ifxuyaofanye = true;
                             }
                             if (ifxuyaofanye) {
                                 //滑动前检测一下是否还有没有点过的点
                                 if (jianceIfLou()) {
-                                    LogUtils.d("还有遗漏的点！！！！再检查一遍!!!!!!!!!!");
+                                    Logger.d("还有遗漏的点！！！！再检查一遍!!!!!!!!!!");
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                         test3(getRootInActiveWindow());
                                     }
@@ -337,7 +336,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                             }
 
                         } else {
-                            LogUtils.d("**************************:自己没有赞过!");
+                            Logger.d("**************************:自己没有赞过!");
                             //开始执行点赞流程
                             if (plBtns.size() != 0) {
                                 Rect outBounds = new Rect();
@@ -358,18 +357,18 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                                     if (zanlBtns.size() != 0) {
                                         if (!topList.contains(top) && zanlBtns.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
                                             topList.add(top);
-                                            LogUtils.d("topList:" + topList.toString());
+                                            Logger.d("topList:" + topList.toString());
 
                                             //判断是否需要翻页，如果当前所有页面的父节点都没点过了，就需要翻页
                                             boolean ifxuyaofanye = false;
-                                            LogUtils.d("Ｏ(≧口≦)Ｏ: i=" + i + "  fuBtns.size():" + fuBtns.size());
+                                            Logger.d("Ｏ(≧口≦)Ｏ: i=" + i + "  fuBtns.size():" + fuBtns.size());
                                             if (i == fuBtns.size() - 1) {
                                                 ifxuyaofanye = true;
                                             }
                                             if (ifxuyaofanye) {
                                                 //滑动前检测一下是否还有没有点过的点
                                                 if (jianceIfLou()) {
-                                                    LogUtils.d("还有遗漏的点！！！！再检查一遍!!!!!!!!!!");
+                                                    Logger.d("还有遗漏的点！！！！再检查一遍!!!!!!!!!!");
                                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                                         test3(getRootInActiveWindow());
                                                     }
@@ -392,7 +391,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                         }
 
                     } else {
-                        LogUtils.d("**************************:点赞区域为空!plBtns.size() :" + plBtns.size());
+                        Logger.d("**************************:点赞区域为空!plBtns.size() :" + plBtns.size());
 
                         //开始执行点赞流程
                         if (plBtns.size() != 0) {
@@ -415,18 +414,18 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                                 if (zanlBtns.size() != 0) {
                                     if (!topList.contains(top) && zanlBtns.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
                                         topList.add(top);
-                                        LogUtils.d("topList:" + topList.toString());
+                                        Logger.d("topList:" + topList.toString());
 
                                         //判断是否需要翻页，如果当前所有页面的父节点都没点过了，就需要翻页
                                         boolean ifxuyaofanye = false;
-                                        LogUtils.d("Ｏ(≧口≦)Ｏ: i=" + i + "  fuBtns.size():" + fuBtns.size());
+                                        Logger.d("Ｏ(≧口≦)Ｏ: i=" + i + "  fuBtns.size():" + fuBtns.size());
                                         if (i == fuBtns.size() - 1) {
                                             ifxuyaofanye = true;
                                         }
                                         if (ifxuyaofanye) {
                                             //滑动前检测一下是否还有没有点过的点
                                             if (jianceIfLou()) {
-                                                LogUtils.d("还有遗漏的点！！！！再检查一遍!!!!!!!!!!");
+                                                Logger.d("还有遗漏的点！！！！再检查一遍!!!!!!!!!!");
                                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                                     test3(getRootInActiveWindow());
                                                 }
@@ -460,7 +459,7 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                 fuBtns = getRootInActiveWindow().findAccessibilityNodeInfosByViewId("com.tencent.mm:id/co0");
             }
         }
-        LogUtils.d("检查的父节点数量:" + fuBtns.size());
+        Logger.d("检查的父节点数量:" + fuBtns.size());
         if (fuBtns.size() != 0) {
             for (AccessibilityNodeInfo fuBtn : fuBtns) {
                 //点赞区域
@@ -468,10 +467,10 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     zanBtns = fuBtn.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cnn");
                 }
-                LogUtils.d("检查的父节点的点赞区域数量:" + zanBtns.size());
+                Logger.d("检查的父节点的点赞区域数量:" + zanBtns.size());
                 if (zanBtns.size() != 0) {
                     AccessibilityNodeInfo zanbtn = zanBtns.get(0);
-                    LogUtils.d(" zanbtn.getText().toString():" + zanbtn.getText().toString());
+                    Logger.d(" zanbtn.getText().toString():" + zanbtn.getText().toString());
                     if (zanbtn != null && zanbtn.getText() != null &&
                             zanbtn.getText().toString().contains(mUserName)) {
                         result = false;
@@ -490,6 +489,6 @@ public class WechatAutoLikeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onInterrupt() {
-        LogUtils.d("onInterrupt");
+        Logger.d("onInterrupt");
     }
 }
