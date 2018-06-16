@@ -57,4 +57,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="我想在美团买鸡排" />
+
+    <Button
+        android:id="@+id/vwxdecrypt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="解密微信" />
+
+    <Button
+        android:id="@+id/vwxaudio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="微信网页语音播放" />
 </LinearLayout>

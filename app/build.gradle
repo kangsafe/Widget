@@ -85,4 +85,9 @@ dependencies {
     implementation 'cn.jiguang.sdk:jcore:1.1.9'  // 此处以JCore 1.1.9 版本为例。
     //安卓日志
     implementation 'com.orhanobut:logger:2.2.0'
+    // xml解析 https://mvnrepository.com/artifact/dom4j/dom4j
+    compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
+//javacv
+    compile group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
+    compile group: 'org.bytedeco', name: 'javacpp', version: '1.4.1'
 }

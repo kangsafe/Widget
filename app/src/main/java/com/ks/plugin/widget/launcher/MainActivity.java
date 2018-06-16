@@ -22,9 +22,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.ks.plugin.widget.launcher.accessibility.AccessibilityActivity;
-import com.ks.plugin.widget.launcher.accessibility.WechatAutoPushAccessibilityService;
+import com.ks.plugin.widget.launcher.accessibility.WxHelper;
 import com.ks.plugin.widget.launcher.changba.PersonHeadActivity;
 import com.ks.plugin.widget.launcher.print.TicketActivity;
+import com.ks.plugin.widget.launcher.wx.AudioActivity;
 import com.orhanobut.logger.Logger;
 
 import java.io.File;
@@ -35,8 +36,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.jpush.android.api.JPushInterface;
-
 //import com.ks.plugin.widget.note.NoteAppWidgetProvider;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ClipboardManager.OnPrimaryClipChangedListener {
@@ -45,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button btnPhoto;
     Button btnPrint;
     Button btnMeituan;
+    Button btnWxDecrypt;
+    Button btnWxAudio;
     EditText tx;
 
     @Override
@@ -56,11 +57,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnPrint = findViewById(R.id.vprint);
         btnMeituan = findViewById(R.id.vmeituan);
         tx = findViewById(R.id.vurl);
+        btnWxDecrypt = findViewById(R.id.vwxdecrypt);
+        btnWxAudio = findViewById(R.id.vwxaudio);
 
         btn.setOnClickListener(this);
         btnPhoto.setOnClickListener(this);
         btnPrint.setOnClickListener(this);
         btnMeituan.setOnClickListener(this);
+        btnWxDecrypt.setOnClickListener(this);
+        btnWxAudio.setOnClickListener(this);
         Intent intent = getIntent();
         Uri uri = intent.getData();
         if (uri != null) {
@@ -145,6 +150,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    return;
 //                }
 //                startActivity(intentPhone);
+                break;
+            case R.id.vwxdecrypt:
+                String pwd = WxHelper.decrptWx(this);
+                Logger.i("微信数据库密码：" + pwd);
+                break;
+            case R.id.vwxaudio:
+                intent = new Intent(this, AudioActivity.class);
+                startActivity(intent);
                 break;
         }
     }
@@ -287,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             view.saveWebArchive(f.getAbsolutePath(), false, new ValueCallback<String>() {
                 @Override
                 public void onReceiveValue(String s) {
-                    Logger.i( s);
+                    Logger.i(s);
                     Message message = new Message();
                     message.what = 2;
                     Map<String, String> map = new HashMap<String, String>();
